@@ -1,4 +1,4 @@
-# Fulo — Complete R&D Document
+# 3MT — Complete R&D Document
 ### Version 3.0 — Build-Ready
 *Updated after UI prototype review and stack finalisation*
 
@@ -8,7 +8,7 @@
 
 | | |
 |---|---|
-| **Name** | Fulo (Bengali: ফুলো — to flourish) |
+| **Name** | 3MT (My Money Management & Tracker: 3MT) |
 | **Tagline** | Your money. Your clarity. |
 | **Platform** | Android (APK, sideloaded) |
 | **User** | Single user, personal use, offline-first |
@@ -619,7 +619,7 @@ goalProgressPct= totalSavedForCategory / goalTarget * 100
    { version, exported_at, entries, categories,
      budget_limits, saving_goals, recurring_rules, settings }
 3. Write to phone Downloads folder via path_provider:
-   fulo-backup-2026-04-22.json
+   3MT-backup-2026-04-22.json
 4. Update last_backup in settings
 5. Snackbar: "Backup saved to Downloads ✓"
 ```
@@ -627,7 +627,7 @@ goalProgressPct= totalSavedForCategory / goalTarget * 100
 ### Import — "Restore Backup"
 ```
 1. file_picker opens phone file browser
-2. User selects fulo-backup-XXXX.json
+2. User selects 3MT-backup-XXXX.json
 3. App validates JSON structure and version field
 4. Show the ONE confirmation dialog in the entire app:
    "This will replace all current data with the backup."
@@ -690,7 +690,7 @@ dependencies:
 ## 10. Project Folder Structure
 
 ```
-fulo/
+3MT/
 ├── lib/
 │   ├── main.dart                        # Entry point, DB init
 │   ├── app.dart                         # MaterialApp, theme, router
@@ -869,8 +869,8 @@ fulo/
    Fix anything it reports
 
 4. Clone and get packages:
-   git clone https://github.com/yourname/fulo.git
-   cd fulo
+   git clone https://github.com/yourname/3MT.git
+   cd 3MT
    flutter pub get
 ```
 
@@ -928,7 +928,7 @@ flutter build apk --release
 | Spend | Expenses.png | ✅ Approved |
 | Save | Savings.png | ✅ Approved |
 | Settings | Settings.png | ✅ Approved |
-| FuloDashboard | FuloDashboard.png | ❌ Discarded |
+| 3MTDashboard | 3MTDashboard.png | ❌ Discarded |
 
 All deviations from prototype are documented under each
 screen's "Prototype issues" section above.
