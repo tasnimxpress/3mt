@@ -1,6 +1,6 @@
 # 3MT — Complete R&D Document
-### Version 3.0 — Build-Ready
-*Updated after UI prototype review and stack finalisation*
+### Version 1.0 — Build-Ready
+*All decisions locked. No open questions. No assumptions needed.*
 
 ---
 
@@ -8,13 +8,13 @@
 
 | | |
 |---|---|
-| **Name** | 3MT (My Money Management & Tracker: 3MT) |
+| **Name** | 3MT (My money manager & tracker) |
 | **Tagline** | Your money. Your clarity. |
-| **Platform** | Android (APK, sideloaded) |
-| **User** | Single user, personal use, offline-first |
-| **Language** | English |
-| **Default Currency** | BDT (changeable in Settings) |
-| **Theme** | Dark (light mode toggle in Settings) |
+| **Platform** | Android only. APK sideloaded. No Play Store. No iOS. No web. |
+| **User** | Single user, personal use, fully offline |
+| **Language** | English only |
+| **Default Currency** | BDT ৳ |
+| **Default Theme** | Dark |
 
 ---
 
@@ -24,68 +24,103 @@
 
 | EARNINGS | SAVINGS | EXPENSES |
 |---|---|---|
-| Money coming in | Money kept / growing | Money going out |
-| Positive, green | Positive, gold | Negative, red |
+| Money coming in | Money ring-fenced, growing | Money gone |
+| Color: #00D68F green | Color: #F5A623 gold | Color: #FF4D6D red |
 | Salary, Freelance, Business | DPS, Stocks, FD | Rent, Food, Transport |
 
-**Net Balance        = Earnings − Expenses**
+### Balance Formulas
+```
+Net Balance        = Earnings − Expenses
+                   = everything you have (savings ring-fenced inside)
+
 Available to Spend = Earnings − Expenses − Savings
-Savings Committed  = Total saved this month (locked, not liquid)
+                   = what you can freely use right now
 
-Primary display number: Available to Spend
-Secondary display number: Net Balance
+Financial Health   = (Total Saved ÷ Total Earned) × 100
+```
 
-**Financial Health Score = (Total Saved ÷ Total Earned) × 100**
+**Available to Spend is the primary number shown on Dashboard.**
+Net Balance is secondary — shown smaller below Available to Spend
+to explain the difference, with label "savings inside" below it.
+
+Savings is NEVER shown as a loss. Gold color and "Saved" label
+always frame it as wealth accumulation, not expenditure.
+However savings DOES reduce Available to Spend — it is
+ring-fenced, not spendable.
 
 ---
 
-## 3. Design System (Confirmed from Prototype)
+## 3. Design System
 
 ### Colors
 ```
-Background        #0A0A0F
-Surface (cards)   #13131A
-Border            #1E1E2E
+Background              #0A0A0F
+Surface (cards)         #13131A
+Border                  #1E1E2E
+Unallocated (chart)     #3A3A4A
 
-Earn (green)      #00D68F
-Spend (red)       #FF4D6D
-Save (gold)       #F5A623
+Earn accent             #00D68F   (green)
+Spend accent            #FF4D6D   (red)
+Save accent             #F5A623   (gold/amber)
 
-Text primary      #F0F0F5
-Text secondary    #7B7B9A
+Text primary            #F0F0F5
+Text secondary          #7B7B9A
 ```
 
 ### Typography
 ```
-Display / big numbers   Instrument Serif
-UI / labels / buttons   DM Sans
-All money amounts       JetBrains Mono
+Display / big numbers   Instrument Serif   (balance figures)
+UI / labels / buttons   DM Sans            (all interface text)
+All money amounts       JetBrains Mono     (every currency value)
 ```
 
-### Spacing & Shape
+### Shape & Border
 ```
 Card border radius      16px
 Bottom sheet radius     24px
-Card border             1px solid #1E1E2E (no shadows)
-Button border radius    full pill for primary action buttons
+Card border             1px solid #1E1E2E
+Shadows                 NONE — use border only
+Primary button          Full pill shape
+```
+
+### Number Formatting
+```
+All BDT amounts use Bengali-style grouping: 1,50,000 not 150,000
+Positive amounts prefixed with +
+Negative amounts prefixed with −
+Savings in summary row shown with − (reduces liquidity)
+but labeled "Saved" not "Deducted"
 ```
 
 ---
 
 ## 4. Navigation Structure
 
-### Bottom Navigation Bar (always visible on all 4 main screens)
+### Bottom Navigation Bar
+Always visible on all 4 main tab screens. Never on Settings.
 ```
 [Dashboard]  [Earn]  [Spend]  [Save]
 ```
-- Active tab: icon + label colored by pillar accent
-- Inactive tabs: #7B7B9A
-- Bar background: #13131A, top border: #1E1E2E
+- Active tab: icon + label in that pillar's accent color
+- Inactive tabs: #7B7B9A icon + label
+- Bar background: #13131A
+- Top border: 1px solid #1E1E2E
 
 ### Settings Access
-- Gear icon ⚙ top-right corner on ALL four tab screens
-- Settings opens as a new full screen (back arrow to return)
-- No bottom nav bar on Settings screen
+- Gear icon ⚙ top-right corner on ALL 4 tab screens
+- Tapping gear opens Settings as a new full screen
+- Back arrow on Settings returns to previous tab
+- Settings has NO bottom nav bar
+
+### Month Navigation
+- Every tab screen header shows: < "April 2026" >
+- Default on app launch: current month and year
+- Format: full month name + 4-digit year e.g. "April 2026"
+- < arrow: previous month, > arrow: next month
+- No restriction on navigation range (past or future)
+- Selected month is GLOBAL — shared across all 4 tabs
+- Changing month on any tab changes it everywhere
+- All data, totals, charts recalculate for selected month
 
 ---
 
@@ -96,81 +131,237 @@ Button border radius    full pill for primary action buttons
 ### SCREEN 1 — Dashboard
 
 **Reference:** Dashboard.png ✅ approved
+**Layout:** Scrollable, top to bottom
 
-**Layout (scrollable, top to bottom):**
+---
 
+#### Header
 ```
-Header row
-  Left:  < "April 2026" > month arrows
-  Left below: "Good morning" subtitle #7B7B9A
-  Right: ⚙ gear icon
-
-Net Balance Card (#13131A, border #1E1E2E, rounded 16px)
-  Large center: "BDT 1,19,500" Instrument Serif 42px white
-  Label below: "Available to Spend" #7B7B9A
-  Smaller below that: "BDT 1,24,500 Net Balance" #7B7B9A small
-  Thin divider
-  4 columns equal width:
-    Earned    | +1,50,000  green   JetBrains Mono
-    Spent     |   -20,500  red     JetBrains Mono
-    Saved     |   -10,000  gold    JetBrains Mono
-    Available |  1,19,500  white   JetBrains Mono 
-
-Note: Saved shows minus sign because it reduces liquidity.
-Gold color and "Saved" label keeps it feeling positive,
-not a loss. Available = Earnings − Expenses − Savings.   
-
-My Targets Card (#13131A, border #1E1E2E, rounded 16px)
-  Header: "My Targets" left white | "April 2026" right #7B7B9A
-  ─────────────────────────────────────────────────────
-  Row — Save:
-    ● gold dot | "Save" white | "Target 30%" #7B7B9A
-    Far right: "Actual 22%" #F5A623 bold
-    Progress bar full width, 8px, rounded:
-      filled 22% in #F5A623
-      unfilled #1E1E2E
-      white vertical tick mark at the 30% position
-    Below bar: "⚠ 8% short — save BDT 12,000 more this month"
-               in #F5A623 small
-  Thin divider
-  Row — Spend:
-    ● red dot | "Spend" white | "Target 50%" #7B7B9A
-    Far right: "Actual 48%" #00D68F bold
-    Progress bar full width, 8px, rounded:
-      filled 48% in #00D68F
-      unfilled #1E1E2E
-      white vertical tick mark at the 50% position
-    Below bar: "✅ On track — BDT 3,000 under limit"
-               in #00D68F small
-
-Donut Chart Card (#13131A, border #1E1E2E, rounded 16px)
-  Left: donut chart, 3 segments green/red/gold
-  Right: legend — colored dot + label + percentage each row
-
-Financial Health Card (#13131A, border #1E1E2E, rounded 16px)
-  "Financial Health" left white | "82%" right #00D68F bold
-  Progress bar full width, 6px, green fill
-  Below: "Savings rate this month" #7B7B9A small
-
-Recent Activity (no card wrapper, plain background)
-  Section title: "Recent Activity" white DM Sans medium
-  5 most recent entries across all 3 types, sorted by date:
-    Left:  colored circle icon
-           ↑ green = earning, ↓ red = expense, ● gold = saving
-    Center top: category name bold white
-    Center below: date + time #7B7B9A small
-    Right: amount JetBrains Mono colored by type
-  Rows separated by #1E1E2E 1px line
+Left:  < "April 2026" >   DM Sans medium white
+       (dynamic: current month/year, updates on arrow tap)
+Below: "Hello there..."   DM Sans small #7B7B9A
+       (static text, never changes, no time-based logic)
+Right: ⚙ gear icon        #7B7B9A
 ```
 
-**Prototype issue — behaviour in real build:**
-> Donut chart in prototype shows proportions of the combined
-> total (earned + spent + saved added together as 100%).
-> In real build the formula must be:
->   Spent%  = Total Spent  ÷ Total Earned × 100
->   Saved%  = Total Saved  ÷ Total Earned × 100
->   Rest%   = 100 − Spent% − Saved%  (unallocated, shown grey)
-> This correctly represents where earned money went.
+---
+
+#### Card 1 — Balance Card
+```
+Background #13131A, border #1E1E2E, rounded 16px, padding 20px
+
+── ZONE 1: Available to Spend ──────────────────────────────
+Label:  "Available to Spend"   DM Sans small #7B7B9A centered
+Number: "BDT 1,19,500"         Instrument Serif 42px white centered
+        (primary dominant number)
+
+Badge (conditional — only shown if last month data exists):
+  Pill shape, centered below number
+  If this month > last month:
+    background #00D68F20, border 1px #00D68F
+    text: "↑ BDT 5,000 vs last month"  #00D68F DM Sans 11px
+  If this month < last month:
+    background #FF4D6D20, border 1px #FF4D6D
+    text: "↓ BDT 3,000 vs last month"  #FF4D6D DM Sans 11px
+  If no last month data: badge hidden entirely, no placeholder
+
+── DIVIDER: 1px #1E1E2E full width ─────────────────────────
+
+── ZONE 2: Net Balance ─────────────────────────────────────
+Two columns same row, left aligned:
+  Left:  "Net Balance"    DM Sans small #7B7B9A
+  Right: "BDT 1,24,500"  JetBrains Mono medium white
+Below left aligned:
+  "savings inside"        DM Sans 10px #7B7B9A
+
+Below that — full width segmented bar, 6px height, rounded:
+  Segment 1: Available portion
+    width = (availableToSpend / netBalance) × 100%
+    color = #00D68F green
+  Segment 2: Saved portion
+    width = (totalSaved / netBalance) × 100%
+    color = #F5A623 gold
+  No gap between segments. Together = 100% width.
+
+Below bar — two labels:
+  Left:  "Available  1,19,500"  #7B7B9A 10px
+  Right: "Saved  10,000"        #F5A623 10px
+
+── DIVIDER: 1px #1E1E2E full width ─────────────────────────
+
+── ZONE 3: 4-column summary row ────────────────────────────
+4 equal columns, label above value:
+  Earned    | +1,50,000  | #00D68F  | JetBrains Mono
+  Spent     |   −20,500  | #FF4D6D  | JetBrains Mono
+  Saved     |   −10,000  | #F5A623  | JetBrains Mono
+  Available |  1,19,500  | #F0F0F5  | JetBrains Mono
+  All labels in #7B7B9A DM Sans 10px above each value
+```
+
+---
+
+#### Card 2 — My Targets
+```
+Background #13131A, border #1E1E2E, rounded 16px
+
+Header row:
+  Left:  "My Targets"   DM Sans medium white
+  Right: "April 2026"   DM Sans small #7B7B9A
+         (shows selected month, not always current month)
+
+── SAVE ROW ────────────────────────────────────────────────
+Left:  ● gold dot  "Save"  DM Sans white
+       "Target 30%"  DM Sans small #7B7B9A (right of label)
+Right: "Actual 22%"  DM Sans bold #F5A623
+
+Progress bar full width, 8px rounded:
+  Fill: 22% width in #F5A623
+  Unfilled: #1E1E2E
+  White vertical tick mark 2px wide at exactly 30% position
+  Tick mark indicates target — not current fill
+
+Status line below bar:
+  If actual < target:
+    "⚠ X% short — save BDT [amount] more this month"  #F5A623 small
+    amount = (target% − actual%) × totalEarned ÷ 100
+  If actual ≥ target:
+    "✅ Target reached this month"  #00D68F small
+
+── DIVIDER: 1px #1E1E2E full width ─────────────────────────
+
+── SPEND ROW ───────────────────────────────────────────────
+Left:  ● red dot  "Spend"  DM Sans white
+       "Target 50%"  DM Sans small #7B7B9A
+Right: "Actual 48%"  DM Sans bold #00D68F
+
+Progress bar full width, 8px rounded:
+  Fill: 48% width in #00D68F (green = within target)
+  If actual > target: fill color changes to #FF4D6D
+  Unfilled: #1E1E2E
+  White vertical tick mark at exactly 50% position
+
+Status line below bar:
+  If actual ≤ target:
+    "✅ On track — BDT [amount] under limit"  #00D68F small
+    amount = (target% − actual%) × totalEarned ÷ 100
+  If actual > target:
+    "⚠ Over limit by BDT [amount] this month"  #FF4D6D small
+
+Note: My Targets card only shows if targets are set in Settings.
+If target_save_pct = 0 AND target_spend_pct = 0:
+  Card is hidden entirely from Dashboard.
+```
+
+---
+
+#### Card 3 — Donut Chart
+```
+Background #13131A, border #1E1E2E, rounded 16px
+
+Left side: donut chart, 3 segments
+Right side: legend, one row per segment
+
+Segments and formula:
+  Spent%       = (totalSpent ÷ totalEarned) × 100   → #FF4D6D red
+  Saved%       = (totalSaved ÷ totalEarned) × 100   → #F5A623 gold
+  Unallocated% = 100 − Spent% − Saved%              → #3A3A4A grey
+
+Legend rows (right of chart):
+  ● #FF4D6D  "Spent"        XX%
+  ● #F5A623  "Saved"        XX%
+  ● #3A3A4A  "Unallocated"  XX%
+
+"Earned" does NOT appear in chart or legend.
+Chart represents where earned money went.
+
+If totalEarned = 0 for selected month:
+  Show empty donut (full grey circle) + "No data this month"
+```
+
+---
+
+#### Card 4 — Financial Health
+```
+Background #13131A, border #1E1E2E, rounded 16px
+
+Left:  "Financial Health"   DM Sans medium white
+Right: "[XX]%"              DM Sans bold #00D68F
+
+Progress bar full width, 6px rounded:
+  Fill width = healthScore %
+  Fill color:
+    0–29%:   #FF4D6D  (poor)
+    30–59%:  #F5A623  (moderate)
+    60–100%: #00D68F  (healthy)
+  Unfilled: #1E1E2E
+
+Below: "Savings rate this month"  DM Sans small #7B7B9A
+
+healthScore = (totalSaved ÷ totalEarned) × 100
+If totalEarned = 0: show 0% and "Add earnings to track health"
+```
+
+---
+
+#### Card 5 — Expense Breakdown by Category - Missing in UI image, you will build it
+```
+Background #13131A, border #1E1E2E, rounded 16px
+
+Title row:
+  Left:  "Expense Breakdown"  DM Sans medium white
+  Right: "April 2026"         DM Sans small #7B7B9A
+
+Horizontal bar chart — one row per expense category:
+  Sorted: highest spend amount first
+  Only categories with at least 1 entry shown
+
+Each row:
+  Category name   DM Sans small white    left
+  Bar             full remaining width
+    Fill:  proportional to (categoryTotal ÷ totalSpent)
+    Color: #FF4D6D red
+    If budget limit set for this category:
+      Show white vertical tick mark on bar at budget position
+      tick position = (budgetLimit ÷ highestCategoryTotal) × barWidth
+      If categoryTotal > budgetLimit:
+        bar fill color changes to #FF4D6D with #F5A623 border
+        (signals over budget)
+  Amount + %      JetBrains Mono small #7B7B9A  right
+  Format: "−6,500  32%"
+
+If no expense entries for selected month:
+  Show "No expenses this month" centered #7B7B9A
+```
+
+---
+
+#### Section — Recent Activity
+```
+No card wrapper. Plain background.
+
+Title: "Recent Activity"  DM Sans medium white
+
+5 most recent entries across ALL 3 types, sorted by date DESC.
+If fewer than 5 entries total: show however many exist.
+If 0 entries: show "No activity this month" centered #7B7B9A
+
+Each row:
+  Left:   circle icon, filled, colored by type
+          Earning: #00D68F circle + ↑ arrow icon
+          Expense: #FF4D6D circle + ↓ arrow icon
+          Saving:  hollow gold circle ○  (approved UI)
+  Center top:    category name  DM Sans bold white
+  Center bottom: date + time    DM Sans small #7B7B9A
+                 Format: "Apr 22, 09:00 AM"
+  Right top:     amount         JetBrains Mono colored by type
+                 Earning: +1,50,000  green
+                 Expense:   −4,200  red
+                 Saving:    +5,000  gold
+  Right bottom:  note if exists  DM Sans small #7B7B9A
+
+Rows separated by 1px #1E1E2E line
+No swipe actions on Dashboard — view only
+```
 
 ---
 
@@ -178,66 +369,123 @@ Recent Activity (no card wrapper, plain background)
 
 **Reference:** Earnings.png ✅ approved
 
-**Layout:**
+---
 
+#### Header
 ```
-Header
-  "Earnings" DM Sans bold white left
-  "April 2026 • BDT 1,50,000 total" #7B7B9A small
-  < > month arrows right
-  ⚙ gear icon top-right
+Left:  "Earnings"                        DM Sans bold white
+Below: "April 2026 • BDT 1,50,000 total" DM Sans small #7B7B9A
+       (total updates live for selected month)
+Right top: ⚙ gear icon
+Right:     < > month arrows
+```
 
-Entry Form Card (#13131A, border #1E1E2E, rounded 16px)
-  Amount row:
-    "BDT" #7B7B9A left | amount input right JetBrains Mono 32px
-  Category chips horizontal scroll:
+---
+
+#### Entry Form (collapsed by default)
+```
+COLLAPSED STATE (default on every screen load):
+  Full width tappable row, background #13131A,
+  border #1E1E2E, rounded 16px:
+  [● green +]  "Add Earning"  [chevron ↓]
+
+EXPANDED STATE (after tap, 300ms ease-out slide down):
+  Card background #13131A, border #1E1E2E, rounded 16px
+
+  Row 1 — Amount:
+    "BDT" label  #7B7B9A left
+    Amount input right, JetBrains Mono 32px white
+    Keyboard opens immediately on amount field on expand
+    Default value: 0 (clears on tap, not pre-selected)
+
+  Row 2 — Category chips (horizontal scroll):
     [Salary] [Freelance] [Business] [Bonus] [Gift] [+ New]
-    Selected chip: #00D68F background, black text, pill
-    Unselected chip: #1E1E2E background, #7B7B9A text, pill
-  Date row: 📅 icon | "Today, Apr 22" #7B7B9A
-  Note row: "Add a note... (optional)" underline, no border
-  Recurring row: "Recurring?" label left | toggle switch right
-  Button: "Save Earning" full width pill, #00D68F bg, black text
+    Selected chip: #00D68F bg, black text, pill shape
+    Unselected chip: #1E1E2E bg, #7B7B9A text, pill shape
+    Right edge: 40px fade gradient #0A0A0F→transparent
+    Default selected: last used category
+    First ever use: Salary selected by default
 
-This Month  (section title, DM Sans medium white)
-  History list:
-    Left:  green filled circle with ↑ arrow
-    Center top: category name bold white
-    Center bottom: date #7B7B9A small
-    Right top: "+80,000" JetBrains Mono #00D68F
-    Right bottom: note text if any, #7B7B9A small
-  Rows separated by #1E1E2E 1px line
+  [+ New] chip behaviour:
+    Tap → inline text input appears within chip row
+    Placeholder: "Category name..."
+    User types → taps keyboard Done
+    New chip created, saved to categories table, selected
+    No modal. No new screen.
+
+  Row 3 — Date:
+    📅 icon  "Today, Apr 22"  #7B7B9A
+    Tap → native Android date picker opens
+    Default: today's date
+    Format displayed: "Today, Apr 22" if today
+                      "Apr 15, 2026" if past date
+
+  Row 4 — Note:
+    Placeholder: "Add a note... (optional)"  #7B7B9A
+    Single underline, no box border
+    Optional — not validated
+
+  Row 5 — Recurring:
+    "Recurring?"  label left  DM Sans white
+    Toggle switch right, default OFF
+    If toggled ON: frequency chips appear inline below:
+      [Monthly]  [Weekly]
+      Default selected: Monthly
+
+  Row 6 — Save button:
+    "Save Earning"  full width pill
+    Background: #00D68F, text: black DM Sans bold
+    Validation: amount must be > 0 AND category selected
+    If invalid: button does nothing, no error shown
+                (amount field highlights red border only)
+
+AFTER SAVE:
+  Form slides closed (300ms ease-in)
+  New entry slides into top of history list
+    (fade-in + translateY 200ms)
+  Amount resets to 0
+  Category keeps last selection
+  Haptic: single soft pulse
+
+COLLAPSE WITHOUT SAVING:
+  Tap collapsed row while form open → closes form, no save
+  No confirmation needed
 ```
 
-**Prototype issues — behaviour in real build:**
+---
 
-> **Issue A — Form collapse/expand:**
-> Prototype shows form always open. In real build:
->
-> Collapsed state (default):
->   [● green +]  "Add Earning"  [chevron ↓]
->   Single full-width row, tappable
->
-> Expanded state (after tap, 300ms ease-out slide down):
->   Full form visible, keyboard opens immediately on amount field
->
-> After tapping "Save Earning":
->   Form animates closed (300ms ease-in)
->   New entry slides into top of history list (fade + slide up)
->   Amount resets to 0, category keeps last selection
->
-> Tapping the collapsed row again while form is open → closes form
+#### History List — "This Month"
+```
+Section title: "This Month"  DM Sans medium white
 
-> **Issue B — Category chip scroll indicator:**
-> Prototype chips are cut off with no scroll hint. In real build:
->   Right edge of chip row: 40px fade gradient #0A0A0F→transparent
->   indicating more chips exist beyond visible area
->
-> Tapping [+ New]:
->   A text input appears inline within the chip row
->   User types category name → taps enter/done on keyboard
->   New chip is created, saved to DB, selected immediately
->   No modal. No new screen.
+Each entry row:
+  Left:   green filled circle + ↑ arrow
+  Center top:    category name  DM Sans bold white
+  Center bottom: date           DM Sans small #7B7B9A
+                 Format: "Apr 22, 2026"
+  Right top:     "+80,000"      JetBrains Mono #00D68F
+  Right bottom:  note if any    DM Sans small #7B7B9A
+Rows separated by 1px #1E1E2E
+
+SWIPE LEFT — delete:
+  Red zone reveals on right
+  Full swipe: entry collapses (slide-left 200ms)
+  Snackbar: "Deleted  [Undo]"  3 second timer
+  Haptic: medium pulse on delete
+  Undo: entry reappears at original position, fade-in
+  No confirmation dialog
+
+SWIPE RIGHT — edit:
+  Entry expands inline to pre-filled form
+  All fields editable
+  Save button becomes "Update"
+  Cancel: swipe back OR tap outside row
+  Haptic: soft pulse on expand
+
+EMPTY STATE (no entries this month):
+  "No earnings this month. Tap above to add your first."
+  Centered, #7B7B9A, DM Sans
+```
 
 ---
 
@@ -245,40 +493,48 @@ This Month  (section title, DM Sans medium white)
 
 **Reference:** Expenses.png ✅ approved
 
-**Layout:** Identical structure to Earn tab with these differences:
-- Accent color: #FF4D6D (red) throughout
-- Default categories: Rent, Food, Transport, Utilities, Health,
-  Education, Entertainment, Shopping, Other
-- Save button label: "Save Expense"
-- History amounts prefixed "-", colored red
+Identical structure to Earn tab with these specific differences:
 
-**Budget warning on chips (confirmed in prototype):**
 ```
-Under the selected chip only:
-  4px tall progress bar, full width of chip
-  0–79% of budget used   → #00D68F green  (healthy)
-  80–99% of budget used  → #F5A623 amber  (approaching limit)
-  100%+ of budget used   → #FF4D6D red    (at or over limit)
-
-Below selected chip:
-  "Food: 6,500 / 10,000" #F5A623 small text
+Header title:   "Expenses"
+Subtitle total: "April 2026 • BDT 20,500 total"
+Accent color:   #FF4D6D red throughout
+Collapsed row:  "Add Expense"
+Save button:    "Save Expense"  bg #FF4D6D, text black
+History icon:   red filled circle + ↓ arrow
+Amounts:        prefixed −, colored #FF4D6D
+Empty state:    "No expenses this month. Tap above to add your first."
 ```
 
-**Prototype issues — behaviour in real build:**
+#### Budget Warning on Chips
+```
+Only shown under the SELECTED chip, not all chips.
 
-> **Issue A — Form collapse/expand:** Identical to Earn tab.
->
-> **Issue B — Category chip scroll indicator:** Identical to Earn tab.
->
-> **Issue C — Budget limit setup missing from prototype:**
-> Prototype shows the budget warning bar but there is no way
-> to set the limit amount. In real build:
->   Long-press any expense category chip →
->   Inline input appears below the chip row (no modal):
->     "Monthly limit for Food:  [________] BDT  [Set]"
->   User enters amount, taps Set → saved to DB immediately
->   Chip now shows budget bar on selection
->   Long-press again to edit or clear the limit
+4px progress bar below selected chip, full chip width:
+  categoryMonthTotal ÷ budgetLimit × 100 = usedPct
+  0–79%:    fill #00D68F  (healthy)
+  80–99%:   fill #F5A623  (approaching limit)
+  100%+:    fill #FF4D6D  (at or over limit)
+
+Text below bar (selected chip only):
+  "Food: 6,500 / 10,000"  DM Sans small #F5A623
+
+If no budget set for this category: bar not shown at all.
+```
+
+#### Budget Limit Setup
+```
+Long-press any expense category chip:
+  Inline input appears below chip row (no modal, no new screen):
+  "Monthly limit for Food:  [________] BDT  [Set]"
+  Input: numeric, JetBrains Mono
+  Tap Set → saved to budget_limits table
+  Chip now shows progress bar on selection
+  Long-press again → same input, pre-filled with current limit
+  Clear field + Set → removes budget limit for that category
+
+Haptic: medium pulse on Set confirmation
+```
 
 ---
 
@@ -286,281 +542,371 @@ Below selected chip:
 
 **Reference:** Savings.png ✅ approved
 
-**Layout:**
+Identical structure to Earn tab with these specific differences:
 
 ```
-Header
-  "Savings" DM Sans bold white left
-  "April 2026 • BDT 10,000 saved" #7B7B9A small
-  < > month arrows right
-  ⚙ gear icon top-right
+Header title:   "Savings"
+Subtitle total: "April 2026 • BDT 10,000 saved"
+Accent color:   #F5A623 gold throughout
+Collapsed row:  "Add Saving"
+Save button:    "Save Entry"  bg #F5A623, text black
+History icon:   hollow gold circle ○  (approved UI, keep as is)
+Amounts:        prefixed +, colored #F5A623
+Empty state:    "No savings this month. Tap above to add your first."
 
-Entry Form Card (gold accent, same structure as Earn/Spend)
-  Categories: [DPS] [Stocks] [FD] [Emergency] [Mutual Fund]
-              [Crypto] [+ New]
-  Selected chip: #F5A623 bg, black text
-  Button: "Save Entry" full width pill, #F5A623 bg, black text
-
-Goals Section (between form and history)
-  Title: "Goals" DM Sans medium white
-
-  Goal cards, each (#13131A, border #1E1E2E, rounded 16px, p16):
-    Top row:
-      Category name bold white left
-      Percentage right, colored:
-        0–49%:   #F5A623 gold
-        50–99%:  #00D68F green
-        100%:    #00D68F + "✅ Complete" label
-    Progress bar 8px rounded:
-      Fill color matches percentage color above
-      Unfilled: #1E1E2E
-    Bottom: "BDT X saved of BDT Y goal" #7B7B9A small
-
-  Nudge card (conditional — only shown when savings target set
-  in Settings AND current actual% is below target%):
-    Background: #F5A62315 (amber 8% opacity)
-    Left border: 3px solid #F5A623
-    Text: "To hit your 30% target, save BDT 12,000 more this month."
-    ✕ dismiss button — hides for the day, reappears next day
-
-History Section
-  Title: "History" DM Sans medium white
-  Entries (hollow gold circle icon ○ — approved, keeping this UI):
-    Left:  hollow gold circle ○
-    Center top: category name bold white
-    Center bottom: date #7B7B9A small
-    Right top: amount +gold JetBrains Mono
-    Right bottom: note #7B7B9A small
-  Rows separated by #1E1E2E line
+Category chips: [DPS] [Stocks] [FD] [Emergency]
+                [Mutual Fund] [Crypto] [+ New]
 ```
 
-**Prototype issues — behaviour in real build:**
+#### Goals Section (between form and history)
+```
+Section title: "Goals"  DM Sans medium white
 
-> **Issue A — Form collapse/expand:** Identical to Earn tab.
->
-> **Issue B — Category chip scroll indicator:** Identical to Earn tab.
->
-> **Issue C — Saving goal target setup missing from prototype:**
-> In real build:
->   Long-press any saving category chip →
->   Inline input appears below chip row (no modal):
->     "Savings goal for DPS:  [________] BDT  [Set]"
->   User enters target amount, taps Set → saved to DB
->   Goal card now appears in Goals section for that category
->   Long-press again to edit or clear the goal
+Goal cards — one per saving category that has a goal set.
+If no goals set: section hidden entirely.
+
+Each goal card (#13131A, border #1E1E2E, rounded 16px, p16):
+  Top row:
+    Left:  category name  DM Sans bold white
+    Right: percentage     DM Sans bold, colored:
+      0–49%:   #F5A623 gold
+      50–99%:  #00D68F green
+      100%:    #00D68F + "✅ Complete" appended
+
+  Progress bar 8px rounded, below top row:
+    Fill width = goalProgressPct %
+    Fill color matches percentage color above
+    Unfilled: #1E1E2E
+
+  Bottom text:
+    "BDT 12,000 saved of BDT 50,000 goal"
+    DM Sans small #7B7B9A
+
+goalProgressPct = totalSavedForCategory (all time) ÷ goalTarget × 100
+Note: goal progress is ALL TIME, not just selected month.
+This means saving BDT 12,000 toward DPS goal counts
+even across months. Only entry logging is month-filtered.
+```
+
+#### Nudge Card
+```
+Shown below Goals section, above History section.
+Conditional — shown ONLY when ALL of these are true:
+  1. target_save_pct is set (> 0) in Settings
+  2. Current month actualSavePct < target_save_pct
+  3. User has not dismissed it today
+
+Card style:
+  Background: #F5A62315 (8% opacity amber)
+  Left border: 3px solid #F5A623
+  Text: "To hit your [X]% target, save BDT [Y] more this month."
+        DM Sans small white
+  ✕ button: right aligned, #7B7B9A
+  Dismiss: hides for rest of calendar day, reappears next day
+  Dismiss state stored in settings table as:
+    nudge_dismissed_date = '2026-04-22'
+  On app launch: if stored date ≠ today → show nudge again
+```
+
+#### Saving Goal Setup
+```
+Long-press any saving category chip:
+  Inline input appears below chip row (no modal, no new screen):
+  "Savings goal for DPS:  [________] BDT  [Set]"
+  Input: numeric, JetBrains Mono
+  Tap Set → saved to saving_goals table
+  Goal card now appears in Goals section
+  Long-press again → same input, pre-filled with current goal
+  Clear field + Set → removes goal for that category
+
+Haptic: medium pulse on Set confirmation
+```
 
 ---
 
 ### SCREEN 5 — Settings
 
 **Reference:** Settings.png ✅ approved
+**Layout:** Single scrollable screen. Back arrow returns to previous tab.
 
-**Layout (single scrollable screen, no sub-pages except categories):**
+---
 
+#### PREFERENCES section
 ```
-Header: ← back arrow | "Settings" center DM Sans bold white
-
-─── PREFERENCES ────────────────────────────────── (section label)
 Card (#13131A, border #1E1E2E, rounded 16px):
-  Currency          BDT ৳           [chevron]
-  ──────────────────────────────────────────
-  Theme             Dark            [toggle ON]
-  ──────────────────────────────────────────
-  Month starts on   1st             [chevron]
-  ──────────────────────────────────────────
-  Haptic feedback                   [toggle ON]
 
-─── MY TARGETS ──────────────────────────────────
+Currency  →  BDT ৳  [chevron right]
+  Tapping opens a bottom sheet with 6 options:
+    BDT ৳   Bangladeshi Taka  (default)
+    USD $   US Dollar
+    EUR €   Euro
+    GBP £   British Pound
+    AED د.إ  UAE Dirham
+    SGD $   Singapore Dollar
+  Selecting updates currency symbol everywhere in app
+  Symbol stored in settings table as currency = 'BDT'
+  No free text entry. No other currencies.
+
+Theme  →  Dark  [toggle]
+  Toggle ON = dark theme (default)
+  Toggle OFF = light theme
+  In M1–M6: toggle saves preference but does nothing visually
+  In M7: full light theme implemented
+  Stored: theme = 'dark' | 'light'
+
+Month starts on  →  1st  [chevron right]
+  Tapping opens bottom sheet:
+    1st (default)
+    15th
+    25th
+  Affects how "this month" is calculated for all summaries
+  Stored: month_start = '1' | '15' | '25'
+
+Haptic feedback  [toggle]
+  ON by default
+  When OFF: all haptic calls are no-ops (no vibration)
+  Stored: haptic = 'true' | 'false'
+```
+
+#### MY TARGETS section
+```
 Card (#13131A, border #1E1E2E, rounded 16px):
-  ● "Save at least"           [30] %
-    "of your monthly earnings" #7B7B9A small
-  ──────────────────────────────────────────
-  ● "Spend no more than"      [50] %
-    "of your monthly earnings" #7B7B9A small
-  ──────────────────────────────────────────
-  Summary row (#0A0A0F bg, rounded 12px, inside card):
-    30% SAVINGS (gold) | 50% SPENDING (red) | 20% FREE (green)
-    All in JetBrains Mono bold, labels below in #7B7B9A small caps
 
-Validation banner (only shown if save% + spend% > 100%):
+● "Save at least"      [30]  %
+  "of your monthly earnings"  DM Sans small #7B7B9A
+  Input: numeric only, max 2 digits, no decimal
+
+─── divider ───────────────────────────────────────────
+
+● "Spend no more than" [50]  %
+  "of your monthly earnings"  DM Sans small #7B7B9A
+  Input: numeric only, max 2 digits, no decimal
+
+─── divider ───────────────────────────────────────────
+
+Summary row (#0A0A0F bg, rounded 12px inside card):
+  30% SAVINGS  |  50% SPENDING  |  20% FREE
+  Colors: gold | red | green
+  Font: JetBrains Mono bold
+  Labels below in #7B7B9A DM Sans small caps
+
+  FREE% = 100 − save% − spend%
+  If FREE% goes negative (total > 100%):
+    Show validation banner BELOW the card:
+    Background #F5A62315, left border 3px #F5A623
+    "Targets exceed 100% of earnings. Please adjust."
+    FREE shows as negative in red
+
+Stored: target_save_pct, target_spend_pct as integers
+Changes apply immediately to Dashboard My Targets card
+```
+
+#### CATEGORIES section
+```
+Card (#13131A, border #1E1E2E, rounded 16px):
+
+Earning Categories   6 categories  [chevron]
+─── divider ───────────────────────────────
+Expense Categories   8 categories  [chevron]
+─── divider ───────────────────────────────
+Saving Categories    7 categories  [chevron]
+
+Category count updates live as user adds/removes categories.
+```
+
+#### Category Management Sub-Screen
+```
+Opens when tapping any category chevron.
+Header: ← back  |  "Earning Categories" center  |  ⚙ hidden
+
+List of all categories for that type, each row:
+  Emoji icon  |  Category name  DM Sans bold white  |  ✕ right
+  Default categories (is_default=1): ✕ hidden, cannot delete
+  User categories: ✕ visible, tapping deletes immediately
+    No confirmation on category delete
+    If deleted category has entries: entries keep category_id
+    but category name shows as "Deleted Category" in grey
+
+Drag to reorder:
+  Long-press any row → drag handle ≡ appears on left
+  Drag up/down to reorder
+  Order saved to sort_order column
+
+Bottom of list (always visible, not scrolled away):
+  [+ Add Category] row
+  Tapping: text input appears inline at bottom of list
+  Placeholder: "Category name..."
+  User types → taps keyboard Done
+  New category appended to list, emoji defaults to 📌
+  No modal. No confirmation.
+```
+
+#### DATA & BACKUP section
+```
+Amber warning banner (conditional):
+  Shown if last_backup is empty OR > 7 days ago:
   Background #F5A62315, left border 3px #F5A623
-  "Targets exceed 100% of earnings. Please adjust." #F5A623 small
-
-─── CATEGORIES ──────────────────────────────────
-Card (#13131A, border #1E1E2E, rounded 16px):
-  Earning Categories    6 categories    [chevron]
-  ──────────────────────────────────────────────
-  Expense Categories    8 categories    [chevron]
-  ──────────────────────────────────────────────
-  Saving Categories     7 categories    [chevron]
-
-─── DATA & BACKUP ───────────────────────────────
-Amber banner (only shown if no backup in 7+ days):
-  Background #F5A62315, left border 3px #F5A623
-  "Back up your data — 7 days since last backup"
+  "Back up your data — [X] days since last backup"
+  Tapping banner scrolls to backup card (same screen)
 
 Card (#13131A, border #1E1E2E, rounded 16px):
-  Backup Now               [Export JSON]  (gold pill button)
-  ──────────────────────────────────────────────
-  Restore Backup           [Import]       (dark pill button)
-  ──────────────────────────────────────────────
-  Last backup    Apr 20, 2026 at 10:32 AM  #7B7B9A
-
-─── DANGER ZONE ─────────────────────────────────
-  Clear All Data (text in #FF4D6D)    [Reset]  (outline red button)
-  "This cannot be undone. Export a backup first." #7B7B9A tiny
+  Backup Now     [Export JSON]  gold pill button
+  ─── divider ──────────────────────────────────
+  Restore Backup [Import]       dark pill button
+  ─── divider ──────────────────────────────────
+  Last backup    "Apr 20, 2026 at 10:32 AM"  #7B7B9A
+                 If never backed up: "Never"  #FF4D6D
 ```
 
-**Category management sub-screen (tapping any category chevron):**
+#### DANGER ZONE section
 ```
-Opens new screen:
-  Header: ← back | "Earning Categories" center
+No card wrapper. Plain rows.
+  "Clear All Data"  text #FF4D6D  |  [Reset]  outline red button
 
-  List of all categories, each row:
-    Icon (emoji) | Category name bold white | ✕ delete right
-    Default categories: ✕ is hidden (cannot delete defaults)
+Tapping Reset: shows the ONE confirmation dialog in entire app:
+  "This will permanently delete all your data.
+   This cannot be undone."
+  [Cancel]  [Delete Everything]
+  Cancel: dismisses
+  Delete Everything: drops all tables, recreates schema,
+  reseeds default categories and default settings,
+  navigates to Dashboard
 
-  Bottom row (always visible):
-    [+ Add Category]
-    Tapping: inline text input appears at bottom of list
-    User types name → taps done → new category added instantly
-    No modal. No confirmation.
-
-  Reorder: long-press any row → drag handle appears → drag to reorder
+Below button:
+  "This cannot be undone. Export a backup first."
+  DM Sans tiny #7B7B9A
 ```
 
 ---
 
-## 6. Interaction Patterns (Real Build Behaviour)
+## 6. Interaction Patterns
 
-### Form Collapse / Expand (all 3 entry tabs)
+### Form Collapse / Expand (Earn, Spend, Save tabs)
 ```
-Collapsed (default):
-  ┌─────────────────────────────────────────┐
-  │  ●  Add Earning                      ↓  │
-  └─────────────────────────────────────────┘
+Default: collapsed on every screen load (not just first load)
 
-Tap → expands (300ms ease-out, slides down):
-  Full form revealed, keyboard opens on amount field immediately
+Collapsed → Expanded:
+  Animation: slide down 300ms ease-out
+  Keyboard: opens immediately on amount input
+  No delay between tap and keyboard appearance
 
-After "Save" tap:
-  Validated: amount > 0 AND category selected
-  Form slides closed (300ms ease-in)
-  New entry appears at top of history list:
-    fade-in + translateY animation (200ms)
-  Amount resets to 0
-  Category keeps last selection (faster repeat entry)
-  Haptic: single soft tap
+Expanded → Collapsed (after save):
+  Animation: slide up 300ms ease-in
+  New entry: fade-in + translateY into top of history list 200ms
+  Amount: resets to 0
+  Category: keeps last selection
+  Date: resets to today
+  Note: clears
+  Recurring: resets to OFF
 
-Tap collapsed row while form is open → form closes, no save
-```
+Expanded → Collapsed (without saving):
+  Tap collapsed trigger row while form is open
+  Form closes, nothing saved, no confirmation
 
-### Entry Delete (swipe left)
-```
-Swipe entry left:
-  Red delete zone slides in from right edge
-  Full swipe completes delete:
-    Entry collapses with slide-left animation (200ms)
-    Snackbar at bottom: "Deleted  [Undo]"  3 seconds
-    Haptic: single medium tap
-  Undo tap within 3s:
-    Entry reappears at original position with fade-in
-    Snackbar dismissed
-  No confirmation dialog at any point
+Validation on Save tap:
+  amount = 0: amount input border turns red, no other action
+  no category: should not be possible (always one selected)
 ```
 
-### Entry Edit (swipe right)
+### Swipe Delete
 ```
-Swipe entry right:
-  Entry row expands inline into edit form
-  All fields pre-filled with existing data
-  "Update" button replaces "Save" button
-  Haptic: single soft tap on expand
-  Cancel: swipe back left OR tap anywhere outside the row
-```
-
-### Month Navigation
-```
-Tap < or > arrows next to month title:
-  All data on current screen filters to selected month
-  All computed values recalculate for that month
-  Dashboard and all tab screens share the same selected month
-  Smooth crossfade on data change (150ms)
+Swipe left on any entry row (Earn, Spend, Save history):
+  Right side reveals red delete background
+  Full swipe (past 50% of row width): commits delete
+  Entry slides left and collapses (200ms)
+  Snackbar bottom: "Deleted  [Undo]"  3 second auto-dismiss
+  Haptic: medium pulse
+  Undo within 3s: entry reinserted at original position
+  After 3s: deletion committed to DB, snackbar gone
+  No confirmation dialog ever
 ```
 
-### Recurring Entries
+### Swipe Edit
 ```
-Toggle "Recurring?" ON in entry form:
-  Frequency chips appear inline below toggle:
-    [Monthly]  [Weekly]   (no dropdown, just two chips)
+Swipe right on any entry row:
+  Entry expands inline to pre-filled edit form
+  All fields editable (same layout as add form)
+  Save button labeled "Update"
+  Haptic: soft pulse
+  Cancel: swipe back left OR tap anywhere outside row
+  On Update tap: same validation as add form
+                 entry updates in DB and in list inline
+```
 
-On save:
-  Entry saved for current date
-  Recurring rule stored in recurring_rules table
+### Recurring Entries Engine
+```
+Runs once on every app launch (not on resume, only cold start)
 
-Auto-creation (runs silently on every app launch):
-  Check recurring_rules for any next_date ≤ today
-  For each due rule: auto-create entry, advance next_date
-  User sees auto-created entries in history list
+For each row in recurring_rules where next_date ≤ today:
+  1. Create new entry with same type/amount/category/note
+     date = next_date (not today, the scheduled date)
+  2. If period = 'monthly': advance next_date by 1 month
+     If period = 'weekly': advance next_date by 7 days
+  3. Repeat until next_date > today (catches missed months)
+
+Auto-created entries appear in history list normally.
+User can delete individual auto-created entries without
+affecting the recurring rule.
+Recurring rules management: Settings → future milestone
 ```
 
 ---
 
 ## 7. Data Architecture
 
-### Storage: sqflite (SQLite on Android file system)
-Real SQLite file on phone internal storage. Not browser
-memory. Survives app restarts, phone restarts, everything
-except a full factory reset — which is why backup exists.
+### Storage
+sqflite SQLite file on Android internal storage.
+Not browser. Not cloud. Real file, persists through
+restarts. Lost only on factory reset or app uninstall.
 
 ### Database Schema
 
 ```sql
 CREATE TABLE entries (
-  id            TEXT PRIMARY KEY,
-  type          TEXT NOT NULL,     -- 'earning' | 'expense' | 'saving'
-  amount        REAL NOT NULL,
-  category_id   TEXT NOT NULL,
-  date          TEXT NOT NULL,     -- ISO 8601: 2026-04-22
-  note          TEXT,
-  is_recurring  INTEGER DEFAULT 0,
-  recur_period  TEXT,              -- 'monthly' | 'weekly' | null
-  recur_rule_id TEXT,
-  created_at    TEXT NOT NULL
+  id            TEXT PRIMARY KEY,   -- UUID v4
+  type          TEXT NOT NULL,      -- 'earning' | 'expense' | 'saving'
+  amount        REAL NOT NULL,      -- always positive, type determines sign
+  category_id   TEXT NOT NULL,      -- FK → categories.id
+  date          TEXT NOT NULL,      -- ISO 8601: '2026-04-22'
+  note          TEXT,               -- nullable
+  is_recurring  INTEGER DEFAULT 0,  -- 0 = no, 1 = yes
+  recur_period  TEXT,               -- 'monthly' | 'weekly' | null
+  recur_rule_id TEXT,               -- FK → recurring_rules.id | null
+  created_at    TEXT NOT NULL       -- ISO 8601 datetime
 );
 
 CREATE TABLE categories (
-  id         TEXT PRIMARY KEY,
-  type       TEXT NOT NULL,        -- 'earning' | 'expense' | 'saving'
+  id         TEXT PRIMARY KEY,      -- UUID v4
+  type       TEXT NOT NULL,         -- 'earning' | 'expense' | 'saving'
   name       TEXT NOT NULL,
-  icon       TEXT,                 -- emoji
-  color      TEXT,
-  sort_order INTEGER DEFAULT 0,
-  is_default INTEGER DEFAULT 0     -- 1 = cannot be deleted
+  icon       TEXT,                  -- single emoji character
+  color      TEXT,                  -- hex, reserved for future use
+  sort_order INTEGER DEFAULT 0,     -- lower = shown first
+  is_default INTEGER DEFAULT 0      -- 1 = cannot be deleted
 );
 
 CREATE TABLE budget_limits (
-  id          TEXT PRIMARY KEY,
-  category_id TEXT NOT NULL,
-  amount      REAL NOT NULL,
+  id          TEXT PRIMARY KEY,     -- UUID v4
+  category_id TEXT NOT NULL,        -- FK → categories.id (expense only)
+  amount      REAL NOT NULL,        -- monthly limit
   created_at  TEXT NOT NULL
 );
 
 CREATE TABLE saving_goals (
-  id          TEXT PRIMARY KEY,
-  category_id TEXT NOT NULL,
-  target      REAL NOT NULL,
+  id          TEXT PRIMARY KEY,     -- UUID v4
+  category_id TEXT NOT NULL,        -- FK → categories.id (saving only)
+  target      REAL NOT NULL,        -- all-time target amount
   created_at  TEXT NOT NULL
 );
 
 CREATE TABLE recurring_rules (
-  id          TEXT PRIMARY KEY,
-  type        TEXT NOT NULL,
+  id          TEXT PRIMARY KEY,     -- UUID v4
+  type        TEXT NOT NULL,        -- 'earning' | 'expense' | 'saving'
   amount      REAL NOT NULL,
   category_id TEXT NOT NULL,
-  period      TEXT NOT NULL,       -- 'monthly' | 'weekly'
+  period      TEXT NOT NULL,        -- 'monthly' | 'weekly'
   note        TEXT,
-  next_date   TEXT NOT NULL,
+  next_date   TEXT NOT NULL,        -- ISO 8601 date of next auto-entry
   created_at  TEXT NOT NULL
 );
 
@@ -570,101 +916,186 @@ CREATE TABLE settings (
 );
 ```
 
-### Default Settings (seeded on first launch)
+### Default Settings (inserted on first launch only)
 ```
-currency         = 'BDT'
-theme            = 'dark'
-month_start      = '1'
-haptic           = 'true'
-target_save_pct  = '30'
-target_spend_pct = '50'
-last_backup      = ''
+currency              = 'BDT'
+theme                 = 'dark'
+month_start           = '1'
+haptic                = 'true'
+target_save_pct       = '30'
+target_spend_pct      = '50'
+last_backup           = ''
+nudge_dismissed_date  = ''
 ```
 
-### Default Categories (seeded on first launch, is_default = 1)
+### Default Categories (inserted on first launch, is_default = 1)
+```
+EARNINGS (type='earning'):
+  Salary        💼  sort_order=1
+  Freelance     💻  sort_order=2
+  Business      🏪  sort_order=3
+  Bonus         🎯  sort_order=4
+  Gift          🎁  sort_order=5
+  Other         📥  sort_order=6
 
-**Earnings:** Salary 💼, Freelance 💻, Business 🏪, Bonus 🎯, Gift 🎁, Other 📥
+EXPENSES (type='expense'):
+  Rent          🏠  sort_order=1
+  Food          🍽️  sort_order=2
+  Transport     🚗  sort_order=3
+  Utilities     💡  sort_order=4
+  Health        🏥  sort_order=5
+  Education     📚  sort_order=6
+  Entertainment 🎬  sort_order=7
+  Shopping      🛍️  sort_order=8
+  Other         📤  sort_order=9
 
-**Expenses:** Rent 🏠, Food 🍽️, Transport 🚗, Utilities 💡, Health 🏥,
-Education 📚, Entertainment 🎬, Shopping 🛍️, Other 📤
+SAVINGS (type='saving'):
+  DPS           🏦  sort_order=1
+  Stocks        📈  sort_order=2
+  FD            🔒  sort_order=3
+  Emergency     🛡️  sort_order=4
+  Mutual Fund   📊  sort_order=5
+  Crypto        ₿   sort_order=6
+  Cash Reserve  💵  sort_order=7
+```
 
-**Savings:** DPS 🏦, Stocks 📈, FD 🔒, Emergency 🛡️,
-Mutual Fund 📊, Crypto ₿, Cash Reserve 💵
-
-### Computed Values (always calculated live, never stored)
+### Computed Values (never stored, always calculated live)
 ```dart
-totalEarned    = SUM(entries WHERE type='earning' AND month=M)
-totalSpent     = SUM(entries WHERE type='expense' AND month=M)
-totalSaved     = SUM(entries WHERE type='saving'  AND month=M)
-availableToSpend = totalEarned - totalSpent - totalSaved
+// Scoped to selected month (year + month filter on entries.date)
+
+totalEarned    = SUM(amount WHERE type='earning' AND month=M)
+totalSpent     = SUM(amount WHERE type='expense' AND month=M)
+totalSaved     = SUM(amount WHERE type='saving'  AND month=M)
+
 netBalance     = totalEarned - totalSpent
-healthScore    = (totalSaved / totalEarned) * 100
-actualSavePct  = (totalSaved / totalEarned) * 100
-actualSpendPct = (totalSpent / totalEarned) * 100
+availableToSpend = totalEarned - totalSpent - totalSaved
+
+healthScore    = totalEarned > 0
+                 ? (totalSaved / totalEarned) * 100
+                 : 0
+
+actualSavePct  = totalEarned > 0
+                 ? (totalSaved / totalEarned) * 100
+                 : 0
+
+actualSpendPct = totalEarned > 0
+                 ? (totalSpent / totalEarned) * 100
+                 : 0
+
 freePct        = 100 - actualSavePct - actualSpendPct
+
 targetSaveAmt  = totalEarned * (target_save_pct / 100)
 saveRemaining  = targetSaveAmt - totalSaved
-chipBudgetPct  = categoryMonthTotal / budgetLimit * 100
-goalProgressPct= totalSavedForCategory / goalTarget * 100
+
+// Month-over-month badge
+prevMonthAvailable = availableToSpend calculated for M-1
+badgeDelta         = availableToSpend - prevMonthAvailable
+showBadge          = prevMonthAvailable data exists
+
+// Category-level (expense)
+categoryMonthTotal = SUM(amount WHERE category_id=C AND month=M)
+chipBudgetPct      = budgetLimit > 0
+                     ? categoryMonthTotal / budgetLimit * 100
+                     : null  (no bar shown if no budget set)
+
+// Category-level (saving goals — ALL TIME not monthly)
+goalProgressPct    = totalSavedForCategory / goalTarget * 100
+totalSavedForCategory = SUM(amount WHERE category_id=C AND type='saving')
+                        (no month filter — all time total)
+```
+
+### Division by Zero Rule
+```
+Any formula dividing by totalEarned:
+  If totalEarned = 0: result = 0, no crash, no NaN
+  Show "—" instead of percentage in UI
+  Show "Add earnings to see this" as subtitle where relevant
 ```
 
 ---
 
 ## 8. Backup & Restore
 
-### Export — "Backup Now"
+### Export
 ```
-1. Read all rows from all tables
-2. Serialize to JSON:
-   { version, exported_at, entries, categories,
-     budget_limits, saving_goals, recurring_rules, settings }
-3. Write to phone Downloads folder via path_provider:
-   3MT-backup-2026-04-22.json
-4. Update last_backup in settings
+Trigger: "Backup Now" button in Settings
+1. Read all rows from all 6 tables
+2. Serialize to JSON structure:
+   {
+     "version": 1,
+     "app": "3MT",
+     "exported_at": "2026-04-22T10:32:00",
+     "entries": [...],
+     "categories": [...],
+     "budget_limits": [...],
+     "saving_goals": [...],
+     "recurring_rules": [...],
+     "settings": {...}
+   }
+3. Write file to phone Downloads folder (path_provider)
+   Filename: 3MT-backup-2026-04-22.json
+   If file with same name exists: overwrite silently
+4. Update last_backup in settings table to current datetime
 5. Snackbar: "Backup saved to Downloads ✓"
 ```
 
-### Import — "Restore Backup"
+### Import
 ```
-1. file_picker opens phone file browser
-2. User selects 3MT-backup-XXXX.json
-3. App validates JSON structure and version field
-4. Show the ONE confirmation dialog in the entire app:
-   "This will replace all current data with the backup."
-   [Cancel]  [Restore]
-5. On Restore: drop all tables → recreate → insert from JSON
-6. Snackbar: "Data restored successfully ✓"
-7. On invalid file: "Invalid backup file. Please try another."
+Trigger: "Restore Backup" button in Settings
+1. file_picker opens — filter to .json files only
+2. User selects file
+3. App reads and parses JSON
+4. Validates: must have "app":"3MT" and "version":1
+   Invalid: snackbar "Invalid backup file. Please try another."
+   Valid: proceed
+5. Show the ONE AND ONLY confirmation dialog in the app:
+   Title: "Restore Backup?"
+   Body:  "This will replace all your current data."
+   Buttons: [Cancel]  [Restore]
+6. On Restore:
+   Drop all tables
+   Recreate schema (same CREATE TABLE statements)
+   Insert all rows from JSON
+   Snackbar: "Data restored successfully ✓"
+7. On Cancel: dismiss dialog, nothing changes
 ```
 
 ### Backup Reminder
 ```
-On every app launch:
-  If last_backup is empty OR > 7 days ago:
-    Show amber banner on Dashboard (not a popup)
-    Tap banner → navigates to Settings Data & Backup section
+On every cold app launch:
+  Read last_backup from settings
+  If last_backup = '' OR (today - last_backup) > 7 days:
+    Show amber banner at top of Dashboard content area
+    (below header, above Balance card)
+    Background #F5A62315, left border 3px #F5A623
+    "Back up your data — [X] days since last backup"
+    X = number of days since last backup
+    If never backed up: "Back up your data — never backed up"
+    Tapping banner: navigates to Settings, scrolls to backup section
+    Banner stays visible until user backs up (no dismiss button)
 ```
 
 ---
 
 ## 9. Tech Stack
 
-| Layer | Choice | Reason |
+| Layer | Choice | Notes |
 |---|---|---|
-| Framework | **Flutter** | Near-native performance, mobile-first |
-| Language | **Dart** | Typed, fast, small ecosystem, fewer vulnerabilities |
-| Package manager | **pub (pub.dev)** | Google-managed, strict versioning, safe |
-| Database | **sqflite** | SQLite on device file system, mature, stable |
-| State management | **Riverpod** | Type-safe, Flutter-idiomatic |
-| Charts | **fl_chart** | Best Flutter chart library, donut + bar |
-| File system | **path_provider** | Access Downloads and app document directories |
-| File picker | **file_picker** | Pick backup JSON from phone storage |
+| Framework | **Flutter** | Near-native Android performance |
+| Language | **Dart** | Typed, compiled, small ecosystem |
+| Package manager | **pub (pub.dev)** | Google-managed, no npm |
+| IDE | **VS Code** | Flutter + Dart extensions. Android Studio installed for SDK/build tools only — never opened for coding |
+| Database | **sqflite** | SQLite on device file system |
+| State management | **Riverpod** | Type-safe, no BuildContext dependency |
+| Charts | **fl_chart** | Donut chart + horizontal bar chart |
+| File system | **path_provider** | Downloads folder access |
+| File picker | **file_picker** | JSON restore picker |
 | Haptics | **haptic_feedback** | Built into Flutter SDK |
-| Navigation | **go_router** | Declarative, clean, well maintained |
-| Build | **flutter build apk** | Single command, no extra services |
-| Code hosting | **GitHub** | Free, version controlled |
+| Navigation | **go_router** | Declarative routing |
+| Build | **flutter build apk** | Single command, no services |
+| Code hosting | **GitHub** | Free |
 
-**No backend. No server. No npm. No subscription. No cost. Ever.**
+**No backend. No server. No npm. No accounts. BDT 0/month forever.**
 
 ### pubspec.yaml Dependencies
 ```yaml
@@ -683,8 +1114,6 @@ dependencies:
   intl: ^0.19.0
 ```
 
-9 packages total. Each has one clear purpose. No bloat.
-
 ---
 
 ## 10. Project Folder Structure
@@ -692,46 +1121,47 @@ dependencies:
 ```
 3MT/
 ├── lib/
-│   ├── main.dart                        # Entry point, DB init
-│   ├── app.dart                         # MaterialApp, theme, router
+│   ├── main.dart                        # Entry, DB init, recurring engine
+│   ├── app.dart                         # MaterialApp, ThemeData, router
 │   │
 │   ├── core/
 │   │   ├── constants/
-│   │   │   ├── colors.dart              # All design system tokens
-│   │   │   ├── text_styles.dart         # 3 font definitions
-│   │   │   └── default_categories.dart  # Seed data for first launch
+│   │   │   ├── colors.dart              # All hex tokens as const Color
+│   │   │   ├── text_styles.dart         # TextStyle for 3 typefaces
+│   │   │   └── default_categories.dart  # Seed list for first launch
 │   │   ├── utils/
-│   │   │   ├── currency_formatter.dart  # "1,50,000" BDT format
-│   │   │   ├── date_helpers.dart        # Month ranges, ISO dates
-│   │   │   └── recurring_engine.dart    # Auto-create due entries
-│   │   └── router.dart                  # go_router definitions
+│   │   │   ├── currency_formatter.dart  # Bengali grouping: 1,50,000
+│   │   │   ├── date_helpers.dart        # Month range, ISO parse/format
+│   │   │   └── recurring_engine.dart    # Auto-create overdue entries
+│   │   └── router.dart                  # go_router all routes defined
 │   │
 │   ├── db/
-│   │   ├── database_helper.dart         # sqflite init, migrations
-│   │   ├── schema.dart                  # All CREATE TABLE SQL
-│   │   ├── seed.dart                    # First-launch seeding
+│   │   ├── database_helper.dart         # sqflite open, onCreate, onUpgrade
+│   │   ├── schema.dart                  # All CREATE TABLE SQL constants
+│   │   ├── seed.dart                    # insertDefaultCategories(),
+│   │   │                               # insertDefaultSettings()
 │   │   └── queries/
-│   │       ├── entry_queries.dart
-│   │       ├── category_queries.dart
-│   │       ├── budget_queries.dart
-│   │       ├── goal_queries.dart
-│   │       ├── settings_queries.dart
-│   │       └── computed_queries.dart    # Aggregated calculations
+│   │       ├── entry_queries.dart       # insert, update, delete, getByMonth
+│   │       ├── category_queries.dart    # insert, delete, reorder, getByType
+│   │       ├── budget_queries.dart      # upsert, delete, getByCategory
+│   │       ├── goal_queries.dart        # upsert, delete, getByCategory
+│   │       ├── settings_queries.dart    # get(key), set(key, value)
+│   │       └── computed_queries.dart    # all SUM aggregations
 │   │
 │   ├── models/
-│   │   ├── entry.dart
+│   │   ├── entry.dart                   # Entry data class + fromMap/toMap
 │   │   ├── category.dart
 │   │   ├── budget_limit.dart
 │   │   ├── saving_goal.dart
 │   │   ├── recurring_rule.dart
-│   │   └── month_summary.dart           # Computed totals data class
+│   │   └── month_summary.dart           # Holds all computed totals
 │   │
-│   ├── providers/                       # Riverpod providers
-│   │   ├── selected_month_provider.dart
-│   │   ├── entries_provider.dart
-│   │   ├── categories_provider.dart
-│   │   ├── summary_provider.dart
-│   │   └── settings_provider.dart
+│   ├── providers/
+│   │   ├── selected_month_provider.dart # StateProvider<DateTime>
+│   │   ├── entries_provider.dart        # FutureProvider, month-filtered
+│   │   ├── categories_provider.dart     # FutureProvider by type
+│   │   ├── summary_provider.dart        # Derived from entries, all calcs
+│   │   └── settings_provider.dart       # All settings key-values
 │   │
 │   ├── screens/
 │   │   ├── dashboard/
@@ -748,23 +1178,25 @@ dependencies:
 │   │
 │   ├── widgets/
 │   │   ├── shared/
-│   │   │   ├── bottom_nav_bar.dart
+│   │   │   ├── bottom_nav_bar.dart      # 4-tab nav
 │   │   │   ├── screen_header.dart       # Title + month nav + gear
-│   │   │   ├── entry_form.dart          # Collapse/expand form
-│   │   │   ├── entry_row.dart           # Swipeable history row
-│   │   │   ├── category_chips.dart      # Horizontal chip row
-│   │   │   └── section_title.dart
+│   │   │   ├── entry_form.dart          # Collapse/expand animated form
+│   │   │   ├── entry_row.dart           # Swipeable row (delete + edit)
+│   │   │   ├── category_chips.dart      # Horizontal scroll + fade + new
+│   │   │   └── section_title.dart       # Reusable section heading
 │   │   ├── dashboard/
-│   │   │   ├── net_balance_card.dart
-│   │   │   ├── targets_card.dart
-│   │   │   ├── donut_chart_card.dart
-│   │   │   ├── health_score_card.dart
+│   │   │   ├── balance_card.dart        # All 3 zones of balance card
+│   │   │   ├── targets_card.dart        # Save + Spend target rows
+│   │   │   ├── donut_chart_card.dart    # fl_chart donut
+│   │   │   ├── health_score_card.dart   # Health % bar
+│   │   │   ├── expense_breakdown_card.dart # Horizontal bar chart
 │   │   │   └── recent_activity_list.dart
 │   │   └── save/
-│   │       └── goal_card.dart
+│   │       ├── goal_card.dart           # Single goal progress card
+│   │       └── nudge_card.dart          # Savings nudge banner
 │   │
 │   └── services/
-│       └── backup_service.dart          # Export/import JSON
+│       └── backup_service.dart          # exportToJson(), importFromJson()
 │
 ├── assets/
 │   └── fonts/
@@ -782,157 +1214,185 @@ dependencies:
 ## 11. Milestone Plan
 
 ### M1 — Project Foundation
-- Flutter project created, pubspec packages added
-- Custom fonts loaded (Instrument Serif, DM Sans, JetBrains Mono)
-- colors.dart and text_styles.dart complete
-- go_router: 4 tab routes + settings route configured
-- Bottom navigation bar widget with correct active states
-- Gear icon on all tab headers → navigates to Settings shell
-- sqflite: DB initialized, all tables created on first launch
-- Default categories seeded on first launch
-- Each screen: correct header, empty body placeholder
-- **Deliverable:** Installable APK, correct navigation, fonts, colors
+- Flutter project created, pubspec.yaml complete
+- All 3 custom fonts loaded and registered
+- colors.dart: all hex tokens as const Color
+- text_styles.dart: TextStyle definitions for all 3 fonts
+- go_router: 4 tab routes + settings route + category route
+- Bottom nav bar widget: correct colors, active/inactive states
+- screen_header.dart: title + month arrows + gear icon
+- Month arrows wired to selected_month_provider
+- Gear icon on all tabs navigates to Settings shell
+- sqflite: DB opens on launch, all tables created (onCreate)
+- Default categories seeded if first launch
+- Default settings seeded if first launch
+- Each screen: correct header, "Coming soon" placeholder body
+- **Deliverable:** Installable APK, navigation works, fonts render,
+  colors correct, month arrows change displayed month
 
 ### M2 — Earn Tab (fully working)
-- EntryForm widget with collapse/expand animation
-- CategoryChips with horizontal scroll, fade gradient, [+ New]
-- Inline new category text input (no modal)
-- Full CRUD via entry_queries.dart
-- EntryRow widget with swipe-left delete + undo snackbar
-- Swipe-right inline edit (pre-filled, Update button)
-- Month navigation filtering history list
-- Recurring toggle + inline frequency chip selector
-- Haptic feedback on save and delete
-- Empty state: "No earnings this month. Tap to add your first."
-- **Deliverable:** Full earnings logging working end to end
+- entry_form.dart: collapse/expand animation (AnimationController)
+- category_chips.dart: scroll, fade gradient, [+ New] inline input
+- Full CRUD: insertEntry, updateEntry, deleteEntry, getByMonth
+- entry_row.dart: swipe left delete + undo snackbar
+- entry_row.dart: swipe right inline edit
+- Month navigation filters history list
+- Recurring toggle + frequency chips + rule saved to DB
+- Haptic on save and delete
+- Empty state message
+- **Deliverable:** Full earnings logging end to end
 
 ### M3 — Spend Tab (fully working)
-- Reuse EntryForm, CategoryChips, EntryRow from M2
-- Long-press chip → inline budget limit input → save to DB
+- Reuse entry_form, category_chips, entry_row from M2
+- budget_queries.dart: upsert and delete
+- Long-press chip → inline budget input
 - Budget progress bar on selected chip (3 color thresholds)
 - Budget text below selected chip
-- Haptic buzz at 100% budget
+- Haptic at 100% budget reached
 - Empty state
 - **Deliverable:** Full expense logging + budget tracking
 
 ### M4 — Save Tab (fully working)
-- Reuse all shared widgets
-- Long-press chip → inline saving goal input → save to DB
-- GoalCard widget with progress bar + color threshold logic
-- Nudge card: conditional, dismissable, resets daily
+- Reuse shared widgets
+- goal_queries.dart: upsert and delete
+- Long-press chip → inline goal input
+- goal_card.dart: progress bar, % color thresholds, all-time total
+- nudge_card.dart: conditional, dismiss stores date, resets daily
 - Empty states for goals and history
 - **Deliverable:** Full savings logging + goal tracking
 
 ### M5 — Dashboard (fully working)
-- All cards live from summary_provider
-- Correct donut chart formula (% of earned)
-- Targets card: tick marks at target%, correct color logic
-- Recent Activity: last 5 entries across all 3 types by date
-- Month navigation synced via selected_month_provider
-- Number count-up animation on load
-- **Deliverable:** Dashboard fully accurate and live
+- balance_card.dart: all 3 zones, segmented bar, badge logic
+- targets_card.dart: bars, tick marks, status messages, hidden if no targets
+- donut_chart_card.dart: correct formula, 3 segments, grey unallocated
+- health_score_card.dart: color thresholds on bar
+- expense_breakdown_card.dart: horizontal bars, budget markers
+- recent_activity_list.dart: 5 entries, all types, date sorted
+- summary_provider.dart: all computed values live
+- Division by zero handled everywhere
+- Number count-up animation on Dashboard load
+- **Deliverable:** Dashboard fully accurate, all cards live
 
 ### M6 — Settings (fully working)
-- All preference controls persisted to DB
-- My Targets % inputs with live summary row + validation
-- Category management sub-screen (add, delete, reorder)
-- Backup: JSON export to Downloads
-- Restore: file_picker → validate → confirm → import
-- Backup reminder banner on launch
-- Danger zone with the one confirmation dialog
-- **Deliverable:** App production-ready, data protected
+- All preference controls saved to settings table
+- Currency bottom sheet (6 options)
+- Theme toggle (saves preference, no visual change yet)
+- Month start bottom sheet
+- Haptic toggle
+- Targets inputs: live FREE% summary, validation banner
+- category_management_screen.dart: add, delete, reorder
+- backup_service.dart: export JSON to Downloads
+- backup_service.dart: import JSON with validation + dialog
+- Backup reminder banner on Dashboard (7-day logic)
+- Danger zone: clear all data with confirmation dialog
+- **Deliverable:** App fully configurable, data protected
 
 ### M7 — Polish & Production
-- All animations tuned and consistent
+- Light theme: full color mapping, toggle works visually
+- All animations tuned (timing, curves consistent)
 - Haptic audit across all interactions
-- Every screen has an empty state (no blank areas)
-- Recurring entries engine running on launch
-- Light theme implementation
-- BDT number formatting: 1,50,000 style
-- Release APK signed and tested
-- GitHub README: setup + build + install guide
-- **Deliverable:** Daily-use ready, ship quality
+- All empty states present (no blank screens)
+- BDT number formatting: 1,50,000 style confirmed everywhere
+- Currency symbol renders in all amount displays
+- Recurring engine: tested across month boundaries
+- Release APK: signed, tested on physical device
+- GitHub README: setup + flutter doctor + build + install guide
+- **Deliverable:** Ship-quality, daily-use personal finance app
 
 ---
 
-## 12. One-Time Setup
+## 12. Setup & Build
 
-### On Your Laptop
+### Laptop Setup (one time)
+```bash
+# 1. Install Flutter SDK
+#    https://docs.flutter.dev/get-started/install
+
+# 2. Install Android Studio (for SDK and build tools only)
+#    Do not use Android Studio for coding — use VS Code
+
+# 3. Install VS Code extensions:
+#    Flutter (by Dart Code)
+#    Dart (by Dart Code)
+
+# 4. Verify setup
+flutter doctor
+# Fix any issues reported before proceeding
+
+# 5. Clone and install packages
+git clone https://github.com/yourname/3MT.git
+cd 3MT
+flutter pub get
 ```
-1. Install Flutter SDK
-   https://docs.flutter.dev/get-started/install
 
-2. Install Android Studio (free)
-   Required for Android SDK and build tools
-
-3. Run: flutter doctor
-   Fix anything it reports
-
-4. Clone and get packages:
-   git clone https://github.com/yourname/3MT.git
-   cd 3MT
-   flutter pub get
-```
-
-No npm. No Node.js. No Expo. No accounts required.
-
-### On Your Phone (one time)
+### Phone Setup (one time)
 ```
 Android Settings → Security → Install unknown apps → Allow
+Enable USB Debugging: Settings → Developer Options → USB Debugging ON
 ```
 
----
-
-## 13. Build & Install Commands
-
+### Daily Development
 ```bash
-# Develop — run on phone via USB (USB debugging ON)
-flutter run
+# Connect phone via USB cable
+flutter run               # hot reload during development
+```
 
-# Build release APK
+### Build Release APK
+```bash
 flutter build apk --release
-
-# APK output:
-# build/app/outputs/flutter-apk/app-release.apk
-
-# Transfer to phone:
-# USB cable, or Google Drive, or WhatsApp/Telegram to yourself
-
-# Install:
-# Tap APK in phone Files app → Install
-# Reinstalling over existing app preserves all data
+# Output: build/app/outputs/flutter-apk/app-release.apk
+# Transfer: USB cable, Google Drive, or Telegram/WhatsApp to self
+# Install: tap APK in Files app → Install
+# Reinstalling over existing app: data is preserved
 ```
 
 ---
 
-## 14. Total Cost
-
-| Item | Cost |
-|---|---|
-| Flutter + Dart | Free / Open Source |
-| All pub.dev packages | Free / Open Source |
-| Android Studio | Free |
-| GitHub | Free |
-| Hosting | None needed |
-| Accounts | None needed |
-| **Monthly forever** | **BDT 0** |
-
----
-
-## 15. Approved Prototype Screens
+## 13. Approved Prototype Screens
 
 | Screen | File | Status |
 |---|---|---|
-| Dashboard | Dashboard.png | ✅ Approved |
-| Earn | Earnings.png | ✅ Approved |
-| Spend | Expenses.png | ✅ Approved |
-| Save | Savings.png | ✅ Approved |
-| Settings | Settings.png | ✅ Approved |
-| 3MTDashboard | 3MTDashboard.png | ❌ Discarded |
-
-All deviations from prototype are documented under each
-screen's "Prototype issues" section above.
+| Dashboard | Dashboard.png | ✅ Approved with documented deviations |
+| Earn | Earnings.png | ✅ Approved with documented deviations |
+| Spend | Expenses.png | ✅ Approved with documented deviations |
+| Save | Savings.png | ✅ Approved with documented deviations |
+| Settings | Settings.png | ✅ Approved with documented deviations |
+All prototype deviations are documented inline in Section 5.
 
 ---
 
-*Document status: Build-ready. Start with Milestone 1.*
+## 14. Locked Implementation Decisions
+*Do not ask about these during build. All decided.*
+
+| Decision | Answer |
+|---|---|
+| Greeting text | Static "Hello there..." — never changes |
+| Time-based greeting | No — always "Hello there..." |
+| Month display | Dynamic — current month on launch, updates on arrow tap |
+| Month format | "April 2026" — full name + 4-digit year |
+| Month scope | Global across all 4 tabs simultaneously |
+| Badge when no last month data | Hidden entirely — never show BDT 0 |
+| Donut chart formula | Spent÷Earned, Saved÷Earned, remainder=Unallocated grey |
+| Donut chart labels | Spent / Saved / Unallocated — no "Earned" label |
+| Form default state | Collapsed on every screen load |
+| Date picker | Native Android date picker — no custom calendar |
+| Currency selector | 6-option bottom sheet — no free text |
+| Light theme | M7 only — toggle saves but does nothing in M1–M6 |
+| Goal progress scope | All-time total, not month-filtered |
+| Savings in balance | Subtracted from Available to Spend, NOT from Net Balance |
+| Net Balance label | "savings inside" shown below the value |
+| Division by zero | Returns 0, shows "—" in UI, no crash |
+| Code delivery | All .dart files generated per milestone, copy-paste ready |
+| Milestone order | M1 → M7 strictly in sequence |
+| IDE | VS Code (Android Studio for SDK only, never opened) |
+| Target platform | Android APK only. Sideloaded. No Play Store. |
+| Expense breakdown chart | Dashboard only. Horizontal bars. Budget markers. |
+| Only confirmation dialog | Restore backup and Clear all data — these two only |
+| Category delete with entries | Entries kept, category shows as "Deleted Category" |
+| Nudge card dismiss | Hides for calendar day, reappears next day |
+| Backup reminder dismiss | No dismiss — stays until user backs up |
+
+---
+
+*Document version: 1.0*
+*Clear any further clarification you need before Start coding for Milestone 1*
